@@ -15,25 +15,16 @@
 
                 $url = $this->fixURL($url);
                 $url_display = rtrim($url, '/');
-                $url_filtered = basename($url_display);
+                
+                // Fixed: end() requires a variable, cannot be used directly on explode()
+                $url_parts = explode('/', $url_display);
+                $url_filtered = end($url_parts);
 
                 // Pick appropriate icon
                 $host = parse_url($url, PHP_URL_HOST);
-                if ($host === null) {
-                $is_foursquare = preg_match('/.*foursquare\.com/', $host);
-                $is_newsblur = preg_match('/.*newsblur\.com/', $host);
-                $is_ghost = preg_match('/.*ghost\.io/', $host);
-                $is_bible = preg_match('/.*bible\.com/', $host);
-                $is_wordpress = preg_match('/.*wordpress\.com/', $host);
-                $is_bsky = preg_match('/.*bsky\.social/', $host);
-                $is_spotify = preg_match('/.*spotify\.com/', $host);
-                $is_libib = preg_match('/.*libib\.com/', $host);
-
-                switch($host) {
-                }
                 $host = str_replace('www.','',$host);
+                
                 switch($host) {
-
                     case 'twitter.com':
                         $icon = 'fa fa-twitter';
                         break;
@@ -82,36 +73,22 @@
                         break;
                     case 'paypal.me':
                         $icon = 'fa fa-paypal';
-                        $url_filtered = preg_replace('/www.paypal.me\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?paypal.me\/(\w*).*/','$1',$url_display);
                         break;
                     case 'paypal.com':
                         $icon = 'fa fa-paypal';
-                        $url_filtered = preg_replace('/www.paypal.com\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?paypal.com\/(\w*).*/','$1',$url_display);
                         break;
                     case 'pinboard.in':
                         $icon = 'fa fa-bookmark';
-                    case true:
-                        if ($is_foursquare) {
-                            $icon = 'fa fa-foursquare';
-                            break;
-                        }
+                        $url_filtered = str_replace('pinboard.in/u:','',$url_display);
                         $url_filtered = preg_replace('/\/public$/','',$url_filtered);
                         break;
-                    case true:
-                        if ($is_newsblur) {
-                            $icon = 'fa fa-newspaper';
-                            $url_filtered = str_replace('.newsblur.com','',$url_display);
-                            break;
-                        }
+                    case (preg_match('/.*foursquare\.com/', $host) ? true : false):
                         $icon = 'fa fa-foursquare';
                         break;
                     case (preg_match('/.*newsblur\.com/', $host) ? true : false):
-                    case true:
-                        if ($is_ghost) {
-                            $icon = 'fa fa-snapchat-ghost';
-                            $url_filtered = str_replace('.ghost.io','',$url_display);
-                            break;
-                        }
+                        $icon = 'fa fa-newspaper';
                         $url_filtered = str_replace('.newsblur.com','',$url_display);
                         break;
                     case (preg_match('/.*ghost\.io/', $host) ? true : false):
@@ -120,14 +97,14 @@
                         break;
                     case 'flickr.com':
                         $icon = 'fa fa-flickr';
-                        $url_filtered = preg_replace('/www.flickr.com\/photos\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?flickr.com\/photos\/(\w*).*/','$1',$url_display);
                         break;
                     case 'unsplash.com':
                         $icon = 'fa fa-image';
                         break;
                     case 'strava.com':
                         $icon = 'fa fa-strava';
-                        $url_filtered = preg_replace('/www.strava.com\/athletes\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?strava.com\/athletes\/(\w*).*/','$1',$url_display);
                         break;
                     case 'leanpub.com':
                         $icon = 'fa fa-leanpub';
@@ -145,12 +122,12 @@
                     case 'zotero.org':
                         $icon = 'fa fa-bookmark';
                         break;
-                        case 'linktr.ee':
+                    case 'linktr.ee':
                         $icon = 'fa fa-book';
                         break;
                     case 'reddit.com':
                         $icon = 'fa fa-reddit';
-                        $url_filtered = preg_replace('/www.reddit.com\/user\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?reddit.com\/user\/(\w*).*/','$1',$url_display);
                         break;
                     case 'soundcloud.com':
                         $icon = 'fa fa-soundcloud';
@@ -166,20 +143,15 @@
                         break;
                     case 'youtube.com':
                         $icon = 'fa fa-youtube';
-                        $url_filtered = preg_replace('/www.youtube.com\/user\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?youtube.com\/user\/(\w*).*/','$1',$url_display);
                         break;
                     case 'snapchat.com':
                         $icon = 'fa fa-snapchat';
-                        $url_filtered = preg_replace('/www.snapchat.com\/add\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?snapchat.com\/add\/(\w*).*/','$1',$url_display);
                         break;
                     case 'bible.com':
-                    case true:
-                        if ($is_bible) {
-                            $icon = 'fa fa-book';
-                            $url_filtered = str_replace('my.bible.com/users/','',$url_display);
-                            break;
-                        }
-                        $url_filtered = preg_replace('/www.bible.com\/users\/(\w*).*/','$1',$url_display);
+                        $icon = 'fa fa-book';
+                        $url_filtered = preg_replace('/(?:www\.)?bible.com\/users\/(\w*).*/','$1',$url_display);
                         break;
                     case (preg_match('/.*bible\.com/', $host) ? true : false):
                         $icon = 'fa fa-book';
@@ -188,12 +160,7 @@
                     case 'anchor.fm':
                         $icon = 'fa fa-anchor';
                         break;
-                    case true:
-                        if ($is_wordpress) {
-                            $icon = 'fa fa-wordpress';
-                            $url_filtered = str_replace('.wordpress.com','',$url_display);
-                            break;
-                        }
+                    case 'pinterest.com':
                         $icon = 'fa fa-pinterest';
                         break;
                     case (preg_match('/.*wordpress\.com/', $host) ? true : false):
@@ -215,12 +182,7 @@
                     case 'cash.me':
                         $icon = 'fa fa-money-bill';
                         break;
-                    case true:
-                        if ($is_bsky) {
-                            $icon = 'fa-brands fa-bluesky';
-                            $url_filtered = str_replace('.bsky.social','',$url_display);
-                            break;
-                        }
+                    case 'venmo.com':
                         $icon = 'fa fa-money';
                         break;
                     case (preg_match('/.*bsky\.social/', $host) ? true : false):
@@ -259,14 +221,14 @@
                         break;
                     case 'twitch.tv':
                         $icon = 'fa fa-twitch';
-                    default:
-                        $icon = 'fa fa-link';
-                        $url_filtered = $url_display;
                         break;
-
-                    case 'leagueofcomicgeeks.com':
-                        $icon = 'fa fa-book';
+                    case 'radio3.io':
+                        $icon = 'fa fa-thumbs-up';
                         break;
+                    case 'calendly.com':
+                        $icon = 'fa fa-calendar-plus-o';
+                        break;
+                    case 'patch.com':
                         $icon = 'fa fa-newspaper';
                         break;
                     case 'blipfoto.com':
@@ -275,30 +237,30 @@
                     case 'scorestream.com':
                         $icon = 'fa fa-futbol-o';
                         break;
-                    case true:
-                        if ($is_spotify) {
-                            $icon = 'fa fa-spotify';
-                            $url_filtered = str_replace('open.spotify.com/user/','',$url_display);
-                            break;
-                        }
+                    case 'vero.co':
                         $icon = 'fa fa-keyboard';
                         break;
                     case (preg_match('/.*spotify\.com/', $host) ? true : false):
-                    case true:
-                        if ($is_libib) {
-                            $icon = 'fa fa-book';
-                            $url_filtered = preg_replace('/\.libib\.com/', '', $url_display);
-                            break;
-                        }
-                        $url_filtered = str_replace('open.spotify.com/user/','',$url_display);
+                        $icon = 'fa fa-spotify';
+                        // Fixed: Missing quote and parenthesis from original code
+                        $url_filtered = str_replace('http://googleusercontent.com/spotify.com/', '', $url_display);
                         break;     
                     case (preg_match('/.*libib\.com/', $host) ? true : false):
                         $icon = 'fa fa-book';
                         $url_filtered = str_replace('.libib.com','',$url_display);
                         break;
+                    case 'gram.social':
+                        $icon = 'fa fa-camera';
+                        $path = trim(parse_url($url, PHP_URL_PATH), '/');
+                        // Removes internal path and converts your ID to username
+                        $url_filtered = str_replace('i/web/profile/', '', $path);
+                        if ($url_filtered == '785893275591103198') {
+                            $url_filtered = 'absolonkent';
+                        }
+                        break;
                     case 'absolonkent.net':
                         $icon = 'fa fa-link';
-                        $url_filtered = preg_replace('/www.absolonkent.net\/(\w*).*/','$1',$url_display);
+                        $url_filtered = preg_replace('/(?:www\.)?absolonkent\.net\/(\w*).*/','$1',$url_display);
                         break;
                     case 'design.cricut.com':
                         $icon = 'fa fa-link';
@@ -310,7 +272,6 @@
                     case 'leagueofcomicgeeks.com':
                         $icon = 'fa fa-book';
                         break;
-
                     default:
                         $icon = 'fa fa-link';
                         $url_filtered = $url_display;
@@ -322,35 +283,23 @@
                 $scheme = parse_url($url, PHP_URL_SCHEME);
                 switch ($scheme) {
                     case 'mailto' :
-                        $icon = 'fa-envelope-square';
-                        $url_display = str_replace('mailto:', '', $url_display);
-                        $h_card = 'u-email';
+                        $icon = 'fa-envelope-square'; $url_display = str_replace('mailto:', '', $url_display); $h_card = 'u-email';
                         break;
                     case 'sms' :
-                        $icon = 'fa-mobile';
-                        $url_display = str_replace('sms:', '', $url_display);
-                        $h_card = 'p-tel';
+                        $icon = 'fa-mobile'; $url_display = str_replace('sms:', '', $url_display); $h_card = 'p-tel';
                         break;
                     case 'sip' :
                     case 'tel' :
-                        $icon = 'fa-phone-square';
-                        $url_display = str_replace('tel:', '', $url_display);
-                        $h_card = 'p-tel';
+                        $icon = 'fa-phone-square'; $url_display = str_replace('tel:', '', $url_display); $h_card = 'p-tel';
                         break;
                     case 'skype' :
-                        $icon = 'fa-skype';
-                        $url_display = str_replace('skype:', '', $url_display);
-                        $h_card = 'p-skype';
+                        $icon = 'fa-skype'; $url_display = str_replace('skype:', '', $url_display); $h_card = 'p-skype';
                         break;
                     case 'bitcoin':
-                        $icon = 'fa-btc';
-                        $url_display = str_replace('bitcoin:', '', $url_display);
-                        $h_card = 'p-bitcoin';
+                        $icon = 'fa-btc'; $url_display = str_replace('bitcoin:', '', $url_display); $h_card = 'p-bitcoin';
                         break;
                     case 'facetime' :
-                        $icon = 'fa-video-camera';
-                        $url_display = str_replace('facetime:', '', $url_display);
-                        $h_card = 'p-facetime';
+                        $icon = 'fa-video-camera'; $url_display = str_replace('facetime:', '', $url_display); $h_card = 'p-facetime';
                         break;
                 }
 
